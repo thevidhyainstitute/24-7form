@@ -32,7 +32,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
       }
 
       const response = await axios.post(
-        "http://localhost:3000/api/auth/change-password",
+        "https://api.jobcard.24x7pestcontrol.in/api/auth/change-password",
         { email, newPassword },
         {
           headers: {

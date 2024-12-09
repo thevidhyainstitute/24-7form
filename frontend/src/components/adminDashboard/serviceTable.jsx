@@ -22,7 +22,7 @@ const ServiceTable = () => {
   const fetchServices = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/api/service/get-all-service",
+        "https://api.jobcard.24x7pestcontrol.in/api/service/get-all-service",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -64,7 +64,7 @@ const ServiceTable = () => {
   const handleDownloadReport = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/api/service/report-download",
+        "https://api.jobcard.24x7pestcontrol.in/api/service/report-download",
         {
           headers: {
             Authorization: `Bearer ${token}`,

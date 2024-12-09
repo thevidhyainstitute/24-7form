@@ -14,7 +14,7 @@ const GetServiceDetail = () => {
     const fetchGetServiceDetail = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/service/get-service/${id}`,
+          `https://api.jobcard.24x7pestcontrol.in/api/service/get-service/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

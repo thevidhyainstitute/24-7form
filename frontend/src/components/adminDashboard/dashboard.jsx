@@ -17,7 +17,7 @@ const Dashboard = () => {
   const fetchTechnicians = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/api/service/get-all-technicians",
+        "https://api.jobcard.24x7pestcontrol.in/api/service/get-all-technicians",
         {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -38,7 +38,7 @@ const CreateTechnician = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/auth/create-technician",
+        "https://api.jobcard.24x7pestcontrol.in/api/auth/create-technician",
         { name, email, password },
         {
           headers: {
@@ -63,7 +63,7 @@ const CreateTechnician = () => {
   const fetchTechnicians = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/api/service/get-all-technicians",
+        "https://api.jobcard.24x7pestcontrol.in/api/service/get-all-technicians",
         {
           params: {
             page,

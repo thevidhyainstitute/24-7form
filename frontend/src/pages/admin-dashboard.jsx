@@ -27,7 +27,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchLoggedInUserDetail = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/auth/me", {
+        const response = await axios.get("https://api.jobcard.24x7pestcontrol.in/api/auth/me", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

@@ -43,7 +43,7 @@ const CreateServicesForm = () => {
   useEffect(() => {
     const fetchLoggedInUserDetail = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/auth/me", {
+        const response = await axios.get("https://api.jobcard.24x7pestcontrol.in/api/auth/me", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -114,7 +114,7 @@ const CreateServicesForm = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:3000/api/service/create-service",
+        "https://api.jobcard.24x7pestcontrol.in/api/service/create-service",
         formData,
         {
           headers: {
