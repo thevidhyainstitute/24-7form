@@ -17,7 +17,31 @@ const CreateServicesForm = () => {
     technicianName: "",
     technicianSignature: "",
     customerSignature: "",
+    pestTrapCatches: "",
+    observationBySms: "",
+    // servicesCarriedOut: ""
   });
+  
+
+  const [servicesCarriedOut, setServicesCarriedOut] = useState({
+    antManagement: false,
+    termiteManagement: false,
+    mosquitoManagement: false,
+    beeManagement: false,
+    woodBorerManagement: false,
+    rodentManagement: false,
+    snakeManagement: false,
+    spiderManagement: false,
+    lizardManagement: false,
+    cockroachManagement: false,
+    weedManagement: false,
+    prophylacticManagement: false,
+    bedBugManagement: false,
+    disinfection: false,
+    flyManagement: false,
+    other: false,
+  });
+
   const [userDetails, setUserDetails] = useState(null); // State to store user details
   const [error, setError] = useState(null);
   const [isWebcamOpen, setIsWebcamOpen] = useState(false);
@@ -34,6 +58,15 @@ const CreateServicesForm = () => {
     setShowTerms(e.target.checked);
   };
 
+
+
+  const handleCheckboxChange2 = (e) => {
+    const { name, checked } = e.target;
+    setServicesCarriedOut((prevState) => ({
+      ...prevState,
+      [name]: checked,
+    }));
+  };
   const technicianSigRef = useRef();
   const customerSigRef = useRef();
   const webcamRef = useRef(null);
@@ -48,10 +81,11 @@ const CreateServicesForm = () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
+        console.log(response, 'response')
         setUserDetails(response.data.user);
         setFormData((prevState) => ({
           ...prevState,
-          technicianName: response.data.user.name, // Auto-fill technician name with logged-in user's name
+          technicianName: response.data.user, // Auto-fill technician name with logged-in user's name
         }));
         console.log(response.data.user);
       } catch (error) {
@@ -111,11 +145,36 @@ const CreateServicesForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Ensure all services have a value (true or false)
+    const selectedServices = {
+      antManagement: servicesCarriedOut.antManagement,
+      animalManagement: servicesCarriedOut.animalManagement,
+      pestControl: servicesCarriedOut.pestControl,
+      termiteManagement: servicesCarriedOut.termiteManagement,
+      mosquitoManagement: servicesCarriedOut.mosquitoManagement,
+      beeManagement: servicesCarriedOut.beeManagement,
+      woodBorerManagement: servicesCarriedOut.woodBorerManagement,
+      rodentManagement: servicesCarriedOut.rodentManagement,
+      snakeManagement: servicesCarriedOut.snakeManagement,
+      spiderManagement: servicesCarriedOut.spiderManagement,
+      lizardManagement: servicesCarriedOut.lizardManagement,
+      cockroachManagement: servicesCarriedOut.cockroachManagement,
+      weedManagement: servicesCarriedOut.weedManagement,
+      prophylacticManagement: servicesCarriedOut.prophylacticManagement,
+      bedBugManagement: servicesCarriedOut.bedBugManagement,
+      disinfection: servicesCarriedOut.disinfection,
+      flyManagement: servicesCarriedOut.flyManagement,
+      other: servicesCarriedOut.other,
+    };
     try {
       const token = localStorage.getItem("token");
+      console.log(formData,servicesCarriedOut, 'data')
       const response = await axios.post(
         "https://api.jobcard.24x7pestcontrol.in/api/service/create-service",
-        formData,
+        {
+          ...formData,
+          servicesCarriedOut: selectedServices, // Sending both selected services and other form data
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -139,6 +198,9 @@ const CreateServicesForm = () => {
         technicianSignature: "",
         customerSignature: "",
         customerPhoto: "",
+        pestTrapCatches: "",
+        observationBySms: "",
+        // servicesCarriedOut: ""
       });
     } catch (error) {
       console.error("Error creating service:", error);
@@ -260,6 +322,58 @@ const CreateServicesForm = () => {
             required
           ></textarea>
         </div>
+
+        <div>
+        <h3 className="text-lg font-bold">Services Carried Out:</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {Object.keys(servicesCarriedOut).map((serviceKey) => (
+            <div key={serviceKey} className="flex items-center">
+              <input
+                type="checkbox"
+                id={serviceKey}
+                name={serviceKey}
+                checked={servicesCarriedOut[serviceKey]}
+                onChange={handleCheckboxChange2}
+              />
+              <label htmlFor={serviceKey} className="ml-2">
+                {serviceKey.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+        <div>
+          {/* <h3 className="text-xl font-bold text-gray-700 mb-2">Services</h3> */}
+          <label className="block text-gray-700 font-medium">
+            Pest Trap - Catches
+          </label>
+          <textarea
+            name="pestTrapCatches"
+            value={formData.pestTrapCatches}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+            rows="4"
+            required
+          ></textarea>
+        </div>
+
+
+        <div>
+          {/* <h3 className="text-xl font-bold text-gray-700 mb-2">Services</h3> */}
+          <label className="block text-gray-700 font-medium">
+            Observation By SMS
+          </label>
+          <textarea
+            name="observationBySms"
+            value={formData.observationBySms}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+            rows="4"
+            required
+          ></textarea>
+        </div>
+
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Technician Section */}

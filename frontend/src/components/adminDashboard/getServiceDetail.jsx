@@ -59,7 +59,23 @@ const GetServiceDetail = () => {
     technicianName,
     technicianSignature,
     customerPhoto,
+    observationBySms,
+    pestTrapCatches,
+    servicesCarriedOut
   } = serviceDetail.data;
+
+  // First decode the string
+const decodedString = JSON.parse(servicesCarriedOut); // Decode the string
+
+// Then parse the decoded string to get the actual object
+const parsedServicesCarriedOut = JSON.parse(decodedString);
+
+// Function to format the service names to be more readable
+const formatServiceName = (service) => {
+  return service
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase()); // Capitalize the first letter
+};
 
   return (
     <div>
@@ -77,6 +93,12 @@ const GetServiceDetail = () => {
         <p>
           <span className="font-medium">Feedback:</span> {customerFeedback}
         </p>
+        <p>
+            <span className="font-medium">Observation By Sms:</span> {observationBySms}
+          </p>
+          <p>
+            <span className="font-medium">Pest Trap Catches:</span> {pestTrapCatches}
+          </p>
         <p>
           <span className="font-medium">Address:</span> {address}
         </p>
@@ -99,6 +121,33 @@ const GetServiceDetail = () => {
           <span className="font-medium">Service Time:</span> {serviceTimeFrom} - {serviceTimeTo}
         </p>
       </div>
+
+       {/* Displaying Services Carried Out */}
+       {/* <div className="border-b pb-4 mb-4">
+          <h3 className="text-xl font-semibold mb-2">Services Carried Out</h3>
+          <div>
+            {Object.entries(parsedServicesCarriedOut).map(([serviceKey, serviceValue]) => (
+              <p key={serviceKey}>
+                <span className="font-medium">{formatServiceName(serviceKey)}:</span>{" "}
+                {serviceValue ? "Yes" : "No"}
+              </p>
+            ))}
+          </div>
+        </div> */}
+
+<div className="border-b pb-4 mb-4">
+  <h3 className="text-xl font-semibold mb-2">Services Carried Out</h3>
+  <div>
+    {Object.entries(parsedServicesCarriedOut)
+      .filter(([serviceKey, serviceValue]) => serviceValue === true) // Only include true values
+      .map(([serviceKey]) => (
+        <p key={serviceKey}>
+          <span className="font-medium">{formatServiceName(serviceKey)}</span>
+        </p>
+      ))}
+  </div>
+</div>
+
 
       {/* Technician Information */}
       <div className="border-b pb-4 mb-4">
