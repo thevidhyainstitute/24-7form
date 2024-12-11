@@ -90,7 +90,7 @@ const CreateServicesForm = () => {
         console.log(response.data.user);
       } catch (error) {
         console.error("Error fetching logged-in user details:", error);
-        toast.error("Failed to fetch user details.");
+        // toast.error("Failed to fetch user details.");
       }
     };
 
