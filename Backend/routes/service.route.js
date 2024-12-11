@@ -13,7 +13,7 @@ router.get('/report-pdf/:id', authMiddleware, getServiceDetailsPDF);
 
 
 // Admin Routes
-router.get('/report-download', authMiddleware,adminMiddleware, downloadServiceReport); // Admin only
+router.get('/report-download', authMiddleware,  adminMiddleware, downloadServiceReport); // Admin only
 router.get('/get-all-technicians', authMiddleware, adminMiddleware, getAllTechnicians); // Admin only
 router.get('/get-technician/:id', authMiddleware,adminMiddleware, getTechnicianDetails); // Admin only
 router.get('/get-all-service', authMiddleware, adminMiddleware, getAllServiceRecords); // Admin only

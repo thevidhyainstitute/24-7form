@@ -36,6 +36,18 @@ const Service = sequelize.define('Service', {
     type: DataTypes.TEXT,
     allowNull: true
   },
+  servicesCarriedOut: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  },
+  pestTrapCatches: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  observationBySms: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
   technicianName: {
     type: DataTypes.STRING,
     allowNull: true

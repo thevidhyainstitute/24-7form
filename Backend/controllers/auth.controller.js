@@ -107,10 +107,26 @@ exports.createTechnician = async (req, res) => {
 };
 
 
+exports.getProfile = async(req, res) => {
+  try {
+const user = req.user;
+const userFind = await User.findOne({id: user.userId});
+console.log(userFind, 'userFind')
+if(userFind)
+  {
+    res.status(201).json({ data: userFind, message: "Login Successfully" });
+    
+  }
 
+  }
+  catch(err)
+  {
+    res.status(500).json({ data: {}, message: "Internal Server error" });
+
+  }
+}
 
 // Get all service records (Admin only)
-
 
 // exports.getAllServiceRecords = async (req, res) => {
 //   try {
@@ -127,8 +143,6 @@ exports.createTechnician = async (req, res) => {
 //     let sortBy = "serialNo";
 //     let order = "desc";
 
-
-  
 //     // Query options
 //     const queryOptions = {
 //       where: {
@@ -144,7 +158,7 @@ exports.createTechnician = async (req, res) => {
 //           { technicianName: { [Op.like]: `%${search}%` } },
 //           { userId: { [Op.like]: `%${search}%` } },
 //         ],
-         
+
 //       },
 //       limit: parseInt(limit), // Limit results
 //       offset: (page - 1) * limit, // Pagination offset
@@ -213,7 +227,6 @@ exports.createTechnician = async (req, res) => {
 //   }
 // };
 
-
 exports.getAllServiceRecords = async (req, res) => {
   try {
     const {
@@ -221,7 +234,7 @@ exports.getAllServiceRecords = async (req, res) => {
       limit = 10,
       search = "",
       startingFrom = "", // Optional filter for starting date
-      endingTo = "",     // Optional filter for ending date
+      endingTo = "", // Optional filter for ending date
     } = req.query;
 
     let sortBy = "serialNo";
@@ -252,23 +265,25 @@ exports.getAllServiceRecords = async (req, res) => {
     if (req.query.order) order = req.query.order;
     queryOptions.order = [[sortBy, order.toUpperCase()]];
 
-    console.log(startingFrom, endingTo, 'dates received');
+    console.log(startingFrom, endingTo, "dates received");
 
     // Add date filters if both startingFrom and endingTo are provided
     if (startingFrom && endingTo) {
       // Ensure that startingFrom and endingTo are formatted correctly as strings
       const startDate = new Date(startingFrom).toISOString().split("T")[0]; // Extract YYYY-MM-DD
-      const endDate = new Date(endingTo).toISOString().split("T")[0];       // Extract YYYY-MM-DD
+      const endDate = new Date(endingTo).toISOString().split("T")[0]; // Extract YYYY-MM-DD
 
       queryOptions.where.serviceDate = {
         [Op.between]: [startDate, endDate],
       };
     }
 
-    console.log(queryOptions, 'query options');
+    console.log(queryOptions, "query options");
 
     // Fetch records
-    const { count, rows: services } = await Service.findAndCountAll(queryOptions);
+    const { count, rows: services } = await Service.findAndCountAll(
+      queryOptions
+    );
 
     // Return paginated data
     res.status(200).json({
@@ -282,16 +297,6 @@ exports.getAllServiceRecords = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-
-
-
-
-
-
-
-
-
 
 exports.getServiceDetails = async (req, res) => {
   try {
@@ -317,11 +322,7 @@ exports.getServiceDetails = async (req, res) => {
   }
 };
 
-
 // Adjust path as per your project structure
-
-
-
 
 // exports.downloadServiceReport = async (req, res) => {
 //   try {
@@ -403,52 +404,45 @@ exports.getServiceDetails = async (req, res) => {
 //   }
 // };
 
-
-
 exports.downloadServiceReport = async (req, res) => {
   try {
     const {
-      sortBy = "serialNo",  
-      order = "DESC",      
-      customerName = "",    
-      startingFrom = "",    
-      endingTo = "",        
+      sortBy = "serialNo",
+      order = "DESC",
+      customerName = "",
+      startingFrom = "",
+      endingTo = "",
     } = req.query;
-
 
     const queryOptions = {
       where: {
-        customerName: { [Op.like]: `%${customerName}%` }, 
+        customerName: { [Op.like]: `%${customerName}%` },
       },
-      order: [[sortBy, order.toUpperCase()]], 
+      order: [[sortBy, order.toUpperCase()]],
     };
 
-    
     if (startingFrom && endingTo) {
-      const startDate = new Date(startingFrom).toISOString().split("T")[0]; 
-      const endDate = new Date(endingTo).toISOString().split("T")[0];       
+      const startDate = new Date(startingFrom).toISOString().split("T")[0];
+      const endDate = new Date(endingTo).toISOString().split("T")[0];
 
       queryOptions.where.serviceDate = {
         [Op.between]: [startDate, endDate],
       };
     } else if (startingFrom) {
-      const startDate = new Date(startingFrom).toISOString().split("T")[0]; 
+      const startDate = new Date(startingFrom).toISOString().split("T")[0];
       queryOptions.where.serviceDate = { [Op.gte]: startDate };
     } else if (endingTo) {
-      const endDate = new Date(endingTo).toISOString().split("T")[0]; 
+      const endDate = new Date(endingTo).toISOString().split("T")[0];
       queryOptions.where.serviceDate = { [Op.lte]: endDate };
     }
 
     console.log(queryOptions, "query options");
 
-    
     const services = await Service.findAll(queryOptions);
 
-    
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Service Records");
 
-    
     worksheet.columns = [
       { header: "Serial No", key: "serialNo", width: 10 },
       { header: "Branch Name", key: "branchName", width: 20 },
@@ -458,14 +452,78 @@ exports.downloadServiceReport = async (req, res) => {
       { header: "Service Time From", key: "serviceTimeFrom", width: 15 },
       { header: "Service Time To", key: "serviceTimeTo", width: 15 },
       { header: "Customer Feedback", key: "customerFeedback", width: 40 },
+      { header: "Observation By Sms", key: "observationBySms", width: 40 },
+      { header: "Pest Trap Catches", key: "pestTrapCatches", width: 40 },
+      { header: "Services Carried Out", key: "servicesCarriedOut", width: 50 },
       { header: "Technician Name", key: "technicianName", width: 20 },
       { header: "Technician Signature", key: "technicianSignature", width: 50 },
       { header: "Customer Signature", key: "customerSignature", width: 50 },
       { header: "User ID", key: "userId", width: 10 },
     ];
 
-    
     services.forEach((service) => {
+      // services.forEach((service) => {
+      var servicesCarriedOutFormatted = "N/A";
+
+      // if (service.servicesCarriedOut) {
+      //   try {
+      //     // Parse the double-encoded JSON
+      //     const decodedString = JSON.parse(service.servicesCarriedOut); // First parse
+      //     const servicesCarriedOut = JSON.parse(decodedString); // Second parse
+
+      //     // Format the entries
+      //     if (
+      //       typeof servicesCarriedOut === "object" &&
+      //       !Array.isArray(servicesCarriedOut)
+      //     ) {
+      //       servicesCarriedOutFormatted = Object.entries(servicesCarriedOut)
+      //         .map(([key, value]) => `${key}: ${value ? "Yes" : "No"}`)
+      //         .join(", ");
+      //     } else {
+      //       servicesCarriedOutFormatted = "Invalid data format";
+      //     }
+      //   } catch (error) {
+      //     console.error("Error parsing servicesCarriedOut:", error);
+      //     servicesCarriedOutFormatted = "Error parsing data";
+      //   }
+      // }
+
+      if (service.servicesCarriedOut) {
+        try {
+          // Parse the double-encoded JSON
+          const decodedString = JSON.parse(service.servicesCarriedOut); // First parse
+          const servicesCarriedOut = JSON.parse(decodedString); // Second parse
+      
+          // Initialize an empty string for the formatted result
+          // let servicesCarriedOutFormatted = "";
+      
+          // Format the entries
+          if (
+            typeof servicesCarriedOut === "object" &&
+            !Array.isArray(servicesCarriedOut)
+          ) {
+            // Filter only true values and format the result
+            servicesCarriedOutFormatted = Object.entries(servicesCarriedOut)
+              .filter(([key, value]) => value === true) // Only include true values
+              .map(([key]) => key) // Get only the service names (keys)
+              .join(", "); // Join them with a comma
+              console.log(servicesCarriedOutFormatted, 'formate')
+          } else {
+            servicesCarriedOutFormatted = "Invalid data format";
+          }
+        } catch (error) {
+          console.error("Error parsing servicesCarriedOut:", error);
+          servicesCarriedOutFormatted = "Error parsing data";
+        }
+      }
+      
+
+      // Add the formatted servicesCarriedOut to your service processing logic
+      console.log(
+        `Service ID: ${service.serialNo}, Services Carried Out: ${servicesCarriedOutFormatted}`
+      );
+      // });
+
       worksheet.addRow({
         serialNo: service.serialNo,
         branchName: service.branchName,
@@ -475,6 +533,9 @@ exports.downloadServiceReport = async (req, res) => {
         serviceTimeFrom: service.serviceTimeFrom,
         serviceTimeTo: service.serviceTimeTo,
         customerFeedback: service.customerFeedback,
+        observationBySms: service.observationBySms,
+        pestTrapCatches: service.pestTrapCatches,
+        servicesCarriedOut: servicesCarriedOutFormatted,
         technicianName: service.technicianName,
         technicianSignature: service.technicianSignature,
         customerSignature: service.customerSignature,
@@ -482,7 +543,6 @@ exports.downloadServiceReport = async (req, res) => {
       });
     });
 
-    
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -492,18 +552,13 @@ exports.downloadServiceReport = async (req, res) => {
       "attachment; filename=ServiceRecords.xlsx"
     );
 
-    
     await workbook.xlsx.write(res);
     res.end();
   } catch (error) {
     console.error("Error generating report:", error);
-    res.status(500).json({data: {}, message: "Failed to generate report" });
+    res.status(500).json({ data: {}, message: "Failed to generate report" });
   }
 };
-
-
-
-
 
 // exports.getServiceDetailsPDF = async (req, res) => {
 //   try {
@@ -646,10 +701,6 @@ exports.downloadServiceReport = async (req, res) => {
 //   }
 // };
 
-
-
-
-
 exports.getServiceDetailsPDF = async (req, res) => {
   try {
     const { id } = req.params; // Extract service ID from the route parameter
@@ -684,7 +735,7 @@ exports.getServiceDetailsPDF = async (req, res) => {
     // const logoPath = path.join(__dirname, "public", "24x7-pestControl.png"); // Path to the logo file
     const logoPath = path.resolve(__dirname, "../public/24x7-pestControl.png");
 
-    console.log(logoPath, 'path')
+    console.log(logoPath, "path");
     if (fs.existsSync(logoPath)) {
       doc.image(logoPath, 50, 30, { width: 100 }); // Position the logo (x: 50, y: 30) and set width
     }
@@ -724,6 +775,97 @@ exports.getServiceDetailsPDF = async (req, res) => {
     doc.text(`Technician Name: ${service.technicianName}`);
     doc.moveDown(1);
 
+    // Services Carried Out Section
+    // if (service.servicesCarriedOut) {
+    //   const servicesCarriedOut = JSON.parse(service.servicesCarriedOut); // Parse JSON string
+    //   doc.text("Services Carried Out", { underline: true }).moveDown(1);
+    //   Object.keys(servicesCarriedOut).forEach((serviceKey) => {
+    //     doc.text(
+    //       `${serviceKey.replace(/([A-Z])/g, " $1")}: ${
+    //         servicesCarriedOut[serviceKey] ? "Yes" : "No"
+    //       }`
+    //     );
+    //   });
+    //   doc.moveDown(2);
+    // }
+
+    console.log(service, "service");
+
+    // if (service.servicesCarriedOut) {
+    //   try {
+    //     // Parse the double-encoded JSON
+    //     const decodedString = JSON.parse(service.servicesCarriedOut); // First parse to decode the string
+    //     const servicesCarriedOut = JSON.parse(decodedString); // Second parse to get the actual JSON object
+
+    //     doc.text("Services Carried Out", { underline: true }).moveDown(1);
+
+    //     // Ensure `servicesCarriedOut` is a valid object
+    //     if (
+    //       typeof servicesCarriedOut === "object" &&
+    //       !Array.isArray(servicesCarriedOut)
+    //     ) {
+    //       Object.entries(servicesCarriedOut).forEach(([key, value]) => {
+    //         if (typeof key === "string") {
+    //           doc.text(`${key}: ${value ? "Yes" : "No"}`);
+    //         }
+    //       });
+    //     } else {
+    //       doc.text("No valid services carried out information available.");
+    //     }
+
+    //     doc.moveDown(2);
+    //   } catch (error) {
+    //     console.error("Error parsing servicesCarriedOut:", error);
+    //     doc
+    //       .text("Error displaying services carried out information.")
+    //       .moveDown(2);
+    //   }
+    // }
+
+
+
+    if (service.servicesCarriedOut) {
+      try {
+        // Parse the double-encoded JSON
+        const decodedString = JSON.parse(service.servicesCarriedOut); // First parse to decode the string
+        const servicesCarriedOut = JSON.parse(decodedString); // Second parse to get the actual JSON object
+    
+        doc.text("Services Carried Out", { underline: true }).moveDown(1);
+    
+        // Ensure `servicesCarriedOut` is a valid object
+        if (
+          typeof servicesCarriedOut === "object" &&
+          !Array.isArray(servicesCarriedOut)
+        ) {
+          // Iterate through the services and only include those that are true
+          Object.entries(servicesCarriedOut).forEach(([key, value]) => {
+            if (value === true) {
+              // Only include services with a true value
+              doc.text(key); // Display the key name only
+            }
+          });
+        } else {
+          doc.text("No valid services carried out information available.");
+        }
+    
+        doc.moveDown(2);
+      } catch (error) {
+        console.error("Error parsing servicesCarriedOut:", error);
+        doc.text("Error displaying services carried out information.").moveDown(2);
+      }
+    }
+    
+
+    // observation by sms section
+    doc.text("Observation By Sms", { underline: true }).moveDown(1);
+    doc.text(`Observation By Sms: ${service.observationBySms}`);
+    doc.moveDown(2);
+
+    // observation by pest_Trap_Catches section
+    doc.text("Pest Trap Catches", { underline: true }).moveDown(1);
+    doc.text(`pest Trap Catches: ${service.pestTrapCatches}`);
+    doc.moveDown(2);
+
     // Customer Signature Section
     doc.text(`User ID: ${service.userId}`).moveDown(2);
 
@@ -749,7 +891,10 @@ exports.getServiceDetailsPDF = async (req, res) => {
     };
 
     if (service.customerPhoto) {
-      const customerPhotoPath = convertBase64ToImage(service.customerPhoto, "temp_customer_photo.jpg");
+      const customerPhotoPath = convertBase64ToImage(
+        service.customerPhoto,
+        "temp_customer_photo.jpg"
+      );
       if (customerPhotoPath) {
         doc.text("Customer Photo:").moveDown(1);
         doc.image(customerPhotoPath, { width: 150 }).moveDown(5);
@@ -760,7 +905,10 @@ exports.getServiceDetailsPDF = async (req, res) => {
     }
 
     if (service.technicianSignature) {
-      const technicianSignaturePath = convertBase64ToImage(service.technicianSignature, "temp_technician_signature.jpg");
+      const technicianSignaturePath = convertBase64ToImage(
+        service.technicianSignature,
+        "temp_technician_signature.jpg"
+      );
       if (technicianSignaturePath) {
         doc.addPage();
         doc.text("Technician Signature:").moveDown(1);
@@ -772,7 +920,10 @@ exports.getServiceDetailsPDF = async (req, res) => {
     }
 
     if (service.customerSignature) {
-      const customerSignaturePath = convertBase64ToImage(service.customerSignature, "temp_customer_signature.jpg");
+      const customerSignaturePath = convertBase64ToImage(
+        service.customerSignature,
+        "temp_customer_signature.jpg"
+      );
       if (customerSignaturePath) {
         doc.text("Customer Signature:").moveDown(1);
         doc.image(customerSignaturePath, { width: 150 }).moveDown(10);
@@ -783,7 +934,10 @@ exports.getServiceDetailsPDF = async (req, res) => {
     }
 
     // Add footer with timestamp
-    doc.moveDown(2).fontSize(10).text(`Generated on: ${new Date()}`, { align: "center" });
+    doc
+      .moveDown(2)
+      .fontSize(10)
+      .text(`Generated on: ${new Date()}`, { align: "center" });
 
     // Finalize the PDF
     doc.end();
@@ -792,11 +946,6 @@ exports.getServiceDetailsPDF = async (req, res) => {
     res.status(500).json({ data: {}, message: "Internal Server error" });
   }
 };
-
-
-
-
-
 
 exports.getAllTechnicians = async (req, res) => {
   try {
@@ -823,7 +972,9 @@ exports.getAllTechnicians = async (req, res) => {
     };
 
     // Fetch records
-    const { count, rows: technicians } = await User.findAndCountAll(queryOptions);
+    const { count, rows: technicians } = await User.findAndCountAll(
+      queryOptions
+    );
 
     // Return paginated data
     res.status(200).json({
@@ -838,22 +989,6 @@ exports.getAllTechnicians = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-    
-
-   
-
-   
-    
-
 exports.getTechnicianDetails = async (req, res) => {
   try {
     const { id } = req.params; // Extract serviceId from the route parameter
@@ -865,7 +1000,9 @@ exports.getTechnicianDetails = async (req, res) => {
 
     // If the service is not found, return a 404 error
     if (!service) {
-      return res.status(404).json({ data: {}, message: "Technician not found" });
+      return res
+        .status(404)
+        .json({ data: {}, message: "Technician not found" });
     }
 
     // Return the service details
